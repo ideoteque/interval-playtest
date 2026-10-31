@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#191323"><meta name="description" content="INTERVAL. Junta símbolos, ordena números e encontra a sequência perfeita. Joga na mesma mesa ou contra a máquina.">
+ <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+ <title>INTERVAL · a tua próxima sequência</title>
+ <link rel="icon" href="assets/icon.png"><link rel="apple-touch-icon" href="assets/icon.png"><link rel="manifest" href="manifest.webmanifest">
+ <link rel="preload" href="assets/Doto-Black.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+ <header class="topbar">
+  <a class="wordmark" href="./" aria-label="INTERVAL início">INTERVAL<span>PLAYTEST / 0.4</span></a>
+  <div class="top-actions"><button id="scores-btn" class="quiet">Pontuação</button><button id="rules-btn" class="quiet">Como jogar <span>?</span></button><button id="new-btn" class="outline">Nova partida <span>↗</span></button></div>
+ </header>
+ <main id="table" aria-label="Mesa de jogo">
+  <div class="table-meta"><span id="mode-label">A TUA PRÓXIMA SEQUÊNCIA</span><span id="round-label">90 CARTAS · 5 FAMÍLIAS</span></div>
+  <section class="boards-row" id="boards" aria-label="Grelhas públicas"></section>
+  <section class="market-section" aria-label="Mercado central">
+   <div class="section-label"><span>MERCADO <small>01 / ENTREGA · 02 / RETIRA</small></span><span id="deck-count"></span></div>
+   <div class="market-board" id="market-board"><img src="assets/market.png" class="board-art" alt="Faixa de mercado original: seis lugares, entrega temporária e monte"><div id="market-cards"></div><div id="offer-slot"></div><div id="draw-pile"></div></div>
+  </section>
+  <section class="turn-zone">
+   <div class="turn-copy"><span id="turn-kicker" class="eyebrow">UMA CARTA MUDA TUDO</span><h1 id="instruction">Encontra o teu intervalo.</h1><p id="hint">O número certo. O símbolo certo. O lugar certo.</p><div class="step-dots" id="steps" aria-hidden="true"><span>1</span><i></i><span>2</span><i></i><span>3</span></div><div class="turn-actions"><button id="cancel-btn" class="quiet" hidden>Recomeçar escolha</button><button id="undo-btn" class="quiet" disabled>↶ Desfazer turno</button></div></div>
+   <div class="hand-area"><div id="hand" class="hand" aria-label="Mão do jogador atual"></div><span id="hand-label" class="hand-label">A TUA MÃO</span></div>
+  </section>
+  <div id="live" class="sr-only" aria-live="polite" role="status"></div>
+  <footer class="table-footer"><span>REGRAS v0.3 <span class="dot">·</span> INTERFACE v0.4</span><button id="save-menu-btn" class="quiet">Guardar / carregar</button><span id="save-status">GUARDADO NESTE DISPOSITIVO</span></footer>
+ </main>
+ <dialog id="setup-dialog" class="setup-dialog">
+  <div class="setup-art"><img src="assets/eye.svg" alt=""><img src="assets/x-code.svg" alt=""><img src="assets/star.svg" alt=""></div>
+  <div class="dialog-inner"><div class="dialog-heading"><span class="eyebrow">O TEU PRÓXIMO INTERVALO</span><button class="icon-btn" data-close aria-label="Fechar">×</button></div><h2 class="display">INTERVAL</h2><p class="intro">Junta símbolos. Ordena números.<br>Faz cada espaço contar.</p>
+  <form id="setup-form">
+   <fieldset class="mode-options"><legend>COMO QUERES JOGAR?</legend><label class="mode-option"><input type="radio" name="mode" value="ai" checked><strong>Contra a máquina <span>↗</span></strong><small>Tu decides. A máquina responde.</small></label><label class="mode-option"><input type="radio" name="mode" value="manual"><strong>Mesa de teste <span>↗</span></strong><small>Controlas todas as mãos.</small></label></fieldset>
+   <div class="setup-fields"><label>JOGADORES<select id="player-count"><option value="2">2 jogadores</option><option value="3">3 jogadores</option><option value="4">4 jogadores</option><option value="5">5 jogadores</option></select></label><label>BARALHO <small>opcional</small><input id="seed-input" type="text" maxlength="10" pattern="[0-9]{1,10}" inputmode="numeric" placeholder="Aleatório"></label></div>
+   <p id="setup-error" class="error" role="alert"></p><button type="submit" class="primary start-button">Vamos jogar <span>→</span></button>
+  </form><button id="resume-btn" class="resume" hidden>Continuar a partida guardada</button><p class="setup-note">2–5 jogadores · 8+ · 15–25 min<br>Versão principal: 90 cartas. Regras v0.3.</p></div>
+ </dialog>
+ <dialog id="info-dialog"><div class="dialog-inner"><div class="dialog-heading"><span id="info-eyebrow" class="eyebrow">INTERVAL</span><button class="icon-btn" data-close aria-label="Fechar">×</button></div><div id="info-content"></div></div></dialog>
+ <input id="import-file" type="file" accept=".json,application/json" hidden>
+ <noscript>Ativa o JavaScript para jogar INTERVAL.</noscript>
+ <script type="module" src="app.js"></script>
+</body></html>

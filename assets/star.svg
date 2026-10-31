@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #eab72b;
+      }
+
+      .cls-2 {
+        fill: #604b94;
+      }
+    </style>
+  </defs>
+  <rect class="cls-1" x="-8.5" y="-8.5" width="161.01" height="161.01"/>
+  <g>
+    <g id="_56" data-name="56">
+      <path class="cls-2" d="M121.87,4.88c0,12.94-4.31,17.25-17.25,17.25,12.94,0,17.25,4.31,17.25,17.25,0-12.94,4.31-17.25,17.25-17.25-12.94,0-17.25-4.31-17.25-17.25Z"/>
+    </g>
+    <g id="_56-2" data-name="56">
+      <path class="cls-2" d="M22.31,104.8c0,12.94-4.31,17.25-17.25,17.25,12.94,0,17.25,4.31,17.25,17.25,0-12.94,4.31-17.25,17.25-17.25-12.94,0-17.25-4.31-17.25-17.25Z"/>
+    </g>
+    <g>
+      <g id="_36" data-name="36">
+        <path class="cls-2" d="M72,36.47c-19.33,0-35,15.67-35,35s15.67,35,35,35,35-15.67,35-35-15.67-35-35-35ZM72,92.96c0-10.91-10.59-21.5-21.5-21.5,10.91,0,21.5-10.59,21.5-21.5,0,10.91,10.59,21.5,21.5,21.5-10.91,0-21.5,10.59-21.5,21.5Z"/>
+      </g>
+      <g>
+        <g id="_04" data-name="04">
+          <g>
+            <rect class="cls-2" x="67.12" y="124.34" width="9.76" height="14.78"/>
+            <rect class="cls-2" x="76.88" y="139.12" width="14.78" height="9.76"/>
+            <rect class="cls-2" x="52.34" y="139.12" width="14.78" height="9.76"/>
+          </g>
+        </g>
+        <g id="_04-2" data-name="04">
+          <g>
+            <rect class="cls-2" x="139.12" y="52.34" width="9.76" height="14.78"/>
+            <rect class="cls-2" x="139.12" y="76.88" width="9.76" height="14.78"/>
+            <rect class="cls-2" x="124.34" y="67.12" width="14.78" height="9.76"/>
+          </g>
+        </g>
+        <g id="_04-3" data-name="04">
+          <g>
+            <rect class="cls-2" x="-4.88" y="52.34" width="9.76" height="14.78"/>
+            <rect class="cls-2" x="-4.88" y="76.88" width="9.76" height="14.78"/>
+            <rect class="cls-2" x="4.88" y="67.12" width="14.78" height="9.76"/>
+          </g>
+        </g>
+        <g id="_04-4" data-name="04">
+          <g>
+            <rect class="cls-2" x="67.12" y="4.88" width="9.76" height="14.78"/>
+            <rect class="cls-2" x="76.88" y="-4.88" width="14.78" height="9.76"/>
+            <rect class="cls-2" x="52.34" y="-4.88" width="14.78" height="9.76"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

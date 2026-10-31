@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4c78ba;
+      }
+
+      .cls-2 {
+        fill: #eab72b;
+      }
+    </style>
+  </defs>
+  <rect class="cls-1" x="-8.5" y="-8.5" width="161.01" height="161.01"/>
+  <g>
+    <g id="_08" data-name="08">
+      <path class="cls-2" d="M97.55,46.49c-14.09-14.11-36.95-14.13-51.07-.04-13.71,13.69-14.11,35.65-1.21,49.83l19.48-19.45c-2.27-3.4-1.91-8.03,1.09-11.03,3.41-3.41,8.94-3.4,12.35,0,3.41,3.41,3.4,8.94,0,12.35-2.96,2.96-7.51,3.34-10.89,1.16l-19.5,19.47c14.16,12.81,36.05,12.4,49.71-1.25,14.11-14.09,14.13-36.95.04-51.07Z"/>
+    </g>
+    <g>
+      <g id="_04" data-name="04">
+        <rect class="cls-2" x="67.12" y="124.34" width="9.76" height="14.78"/>
+        <rect class="cls-2" x="76.88" y="139.12" width="14.78" height="9.76"/>
+        <rect class="cls-2" x="52.34" y="139.12" width="14.78" height="9.76"/>
+      </g>
+      <g id="_04-2" data-name="04">
+        <rect class="cls-2" x="139.12" y="52.34" width="9.76" height="14.78"/>
+        <rect class="cls-2" x="139.12" y="76.88" width="9.76" height="14.78"/>
+        <rect class="cls-2" x="124.34" y="67.12" width="14.78" height="9.76"/>
+      </g>
+      <g id="_04-3" data-name="04">
+        <rect class="cls-2" x="-4.88" y="52.34" width="9.76" height="14.78"/>
+        <rect class="cls-2" x="-4.88" y="76.88" width="9.76" height="14.78"/>
+        <rect class="cls-2" x="4.88" y="67.12" width="14.78" height="9.76"/>
+      </g>
+      <g id="_04-4" data-name="04">
+        <rect class="cls-2" x="67.12" y="4.88" width="9.76" height="14.78"/>
+        <rect class="cls-2" x="76.88" y="-4.88" width="14.78" height="9.76"/>
+        <rect class="cls-2" x="52.34" y="-4.88" width="14.78" height="9.76"/>
+      </g>
+    </g>
+  </g>
+</svg>

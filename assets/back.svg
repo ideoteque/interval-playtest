@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #cd5931;
+      }
+
+      .cls-2 {
+        fill: #96958c;
+      }
+
+      .cls-3 {
+        fill: #604b94;
+        font-family: Doto-Black, Doto;
+        font-size: 36.36px;
+        font-variation-settings: 'ROND' 0, 'wght' 900;
+        font-weight: 800;
+        letter-spacing: 2.18em;
+      }
+    </style>
+  </defs>
+  <rect class="cls-2" x="-8.5" y="-8.5" width="161.01" height="161.01"/>
+  <g id="_06" data-name="06">
+    <path class="cls-1" d="M72.84,139.09c6.37-.4,11.58-5.54,12.06-11.9.31-4-1.21-7.65-3.8-10.22-3.06-3.03-4.03-3.97-6.08-11.05s-2.06-11.13-2.06-12.3c0-5.62.48-27.86,16.13-46.81,4.69-4.58,7.54-11.03,7.36-18.15-.35-13.12-11.2-23.73-24.32-23.79-13.56-.07-24.57,10.91-24.57,24.45,0,6.95,2.88,11.51,7.56,17.67,12.58,16.85,16.41,40.75,16.41,44.56,0,0,.4,9.23-6.17,21.44-.98,1.81-2.18,3.49-3.47,5.1-1.77,2.21-2.83,5.02-2.83,8.07,0,7.43,6.26,13.39,13.79,12.92Z"/>
+  </g>
+  <g id="_04" data-name="04">
+    <g>
+      <rect class="cls-1" x="114.94" y="52.34" width="9.76" height="14.78"/>
+      <rect class="cls-1" x="114.94" y="76.88" width="9.76" height="14.78"/>
+      <rect class="cls-1" x="124.69" y="67.12" width="14.78" height="9.76"/>
+      <rect class="cls-1" x="100.15" y="67.12" width="14.78" height="9.76"/>
+    </g>
+  </g>
+  <g id="_04-2" data-name="04">
+    <g>
+      <rect class="cls-1" x="19.31" y="52.34" width="9.76" height="14.78"/>
+      <rect class="cls-1" x="19.31" y="76.88" width="9.76" height="14.78"/>
+      <rect class="cls-1" x="29.06" y="67.12" width="14.78" height="9.76"/>
+      <rect class="cls-1" x="4.52" y="67.12" width="14.78" height="9.76"/>
+    </g>
+  </g>
+  <text class="cls-3" transform="translate(10.8 36.04)"><tspan x="0" y="0">NT</tspan><tspan x="0" y="95.49">RV</tspan></text>
+</svg>

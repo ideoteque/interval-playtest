@@ -14,7 +14,9 @@ export function coopScore(top,bottom){
 function normalize(options){
  const {seed,n,mode,variant='classic'}=options||{};
  if(!['manual','ai'].includes(mode)||!['classic','race','coop'].includes(variant)||!Number.isInteger(seed)||seed<0||seed>0xffffffff||!Number.isInteger(n)||n<2||n>5||variant==='coop'&&n!==4)throw Error('Opções de partida inválidas.');
- return {seed,n,mode,variant,championship:variant==='race'||variant==='coop'&&options.championship===true};
+ const coopOrder=options.coopOrder??'crossed';
+ if(variant==='coop'&&!['crossed','legacy'].includes(coopOrder))throw Error('Ordem cooperativa inválida.');
+ return {seed,n,mode,variant,championship:variant==='race'||variant==='coop'&&options.championship===true,...(variant==='coop'?{coopOrder}:{})};
 }
 function rolesFor(seed){
  let t=(seed^0x52414944)>>>0;const coin=()=>{let v=t+=0x6D2B79F5;v=Math.imul(v^v>>>15,v|1);v^=v+Math.imul(v^v>>>7,v|61);return (v^v>>>14)>>>31;};
@@ -24,7 +26,10 @@ function rolesFor(seed){
 function gameFor(options,index,first,roles){
  const seed=(options.seed+Math.imul(index,0x9e3779b9))>>>0,s=setup(options.n,seed);
  if(index)s.first=(first+index)%s.n;
- if(options.variant==='coop')s.order=[0,1].map(team=>roles.findIndex(x=>x.team===team&&x.board==='A')).concat([0,1].map(team=>roles.findIndex(x=>x.team===team&&x.board==='B')));
+ if(options.variant==='coop'){
+  const order=options.coopOrder==='legacy'?[[0,'A'],[1,'A'],[0,'B'],[1,'B']]:[[0,'A'],[1,'B'],[0,'B'],[1,'A']];
+  s.order=order.map(([team,board])=>roles.findIndex(x=>x.team===team&&x.board===board));
+ }
  return s;
 }
 export function createSession(options){
@@ -60,7 +65,8 @@ export function sessionRecord(s){return {schema:2,appVersion:VERSION,rules:'0.5'
 export function restoreSession(record){
  if(record?.schema===1&&record.rules==='0.3')record={schema:2,rules:'0.5',options:{seed:record.seed,n:record.n,mode:record.mode,variant:'classic'},rounds:[{moves:record.moves}]};
  if(record?.schema!==2||record.rules!=='0.5'||!Array.isArray(record.rounds)||!record.rounds.length||record.rounds.length>256)throw Error('Ficheiro de sessão inválido.');
- let s=createSession(record.options);
+ const options=record.options?.variant==='coop'&&!record.options.coopOrder?{...record.options,coopOrder:'legacy'}:record.options;
+ let s=createSession(options);
  for(let i=0;i<record.rounds.length;i++){
   if(i)s=nextRound(s);
   const moves=record.rounds[i]?.moves;

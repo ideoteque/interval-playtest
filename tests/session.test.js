@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {current,move,legalMoves,intervalScore,serialize,setup} from '../engine.js';
 import {coopScore,createSession,sessionMove,nextRound,sessionRecord,restoreSession,teamResult,target,sessionWinners,chooseSessionMove,undoSession} from '../session.js';
 const empty=()=>Array(12).fill(null);
@@ -31,15 +32,33 @@ test('RAID: apenas linha inferior A com linha superior B; números não acrescen
  const [a,b]=borders([0,0,0,0],[0,0,0,0]);assert.equal(coopScore(a,b).total,16);assert.equal(coopScore(b,a).total,0);
  b.slice(0,4).forEach((c,i)=>c.v=90-i);assert.equal(coopScore(a,b).total,16);
 });
-test('CO-OP: quatro jogadores, equipas alternadas e ordem circular 1A–2A–1B–2B',()=>{
- const expected=['1A','2A','1B','2B'];const assigned=new Set();
+test('CO-OP: quatro jogadores, equipas alternadas e ordem circular 1A–2B–1B–2A',()=>{
+ const expected=['1A','2B','1B','2A'];const assigned=new Set();
  for(let seed=0;seed<30;seed++){
   const s=session('coop',4,seed);assert.deepEqual(s.game.order.map(p=>`${s.roles[p].team+1}${s.roles[p].board}`),expected);
+  assert.deepEqual(Array.from({length:8},(_,turn)=>{const r=s.roles[current({...s.game,turn})];return `${r.team+1}${r.board}`;}),Array.from({length:8},(_,turn)=>expected[(s.first+turn)%4]));
   assert.deepEqual([0,1].map(t=>s.roles.filter(r=>r.team===t).map(r=>r.board).sort()),[['A','B'],['A','B']]);
   assigned.add(s.roles[0].board);
   const observed=Array.from({length:8},(_,turn)=>s.roles[current({...s.game,turn})].team);observed.forEach((t,i)=>{if(i)assert.notEqual(t,observed[i-1]);});
  }
  assert.equal(assigned.size,2);assert.throws(()=>session('coop',3));
+});
+
+test('CO-OP corrigido roda quem começa no ciclo cruzado entre partidas',()=>{
+ const s=finish(session('coop',4,23,true)),next=nextRound(s);
+ assert.equal(next.options.coopOrder,'crossed');
+ assert.equal(next.game.first,(s.first+1)%4);
+ assert.deepEqual(next.game.order,s.game.order);
+ assert.deepEqual(restoreSession(sessionRecord(next)),next);
+});
+
+test('CO-OP anterior à correção recupera as cartas e os lugares originais',()=>{
+ const fixture=JSON.parse(readFileSync(new URL('./legacy-coop.json',import.meta.url),'utf8'));
+ const restored=restoreSession(fixture.record);
+ assert.deepEqual(restored.game,fixture.game);
+ assert.equal(restored.options.coopOrder,'legacy');
+ assert.deepEqual(restoreSession(sessionRecord(restored)),restored);
+ assert.equal(createSession({...fixture.record.options}).options.coopOrder,'crossed');
 });
 test('Clássico mantém pontuação e identidade do estado original',()=>{
  let s=session(),g=setup(2,2026);assert.deepEqual(s.game,g);

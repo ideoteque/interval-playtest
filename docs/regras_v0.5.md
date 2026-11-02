@@ -121,7 +121,7 @@ Sorteia quem começa a primeira partida; nas seguintes, avança uma posição na
 
 Exatamente 4 jogadores. Forma as equipas 1A e 1B contra 2A e 2B. Sorteia quem recebe A ou B dentro de cada equipa.
 
-A ordem circular é 1A, 2A, 1B, 2B. Sorteia quem começa. Mantém as mãos secretas e constrói a tua grelha.
+A ordem circular é 1A, 2B, 1B, 2A. Sorteia quem começa. Mantém as mãos secretas e constrói a tua grelha.
 
 No fim, junta pelas setas: A em cima, B em baixo, com as quatro colunas alinhadas. Não rodes tabuleiros nem troques cartas ou colunas.
 

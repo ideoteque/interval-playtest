@@ -2,7 +2,7 @@
 
 **[Jogar no navegador](https://ideoteque.github.io/interval-playtest/)**
 
-Interface **v0.5.0**, com o Clássico **v0.3** preservado, Corrida aos Pontos e CO-OP 2vs2 / RAID 2. Edição principal com 90 cartas únicas de 1 a 90. A variante 1–45 não faz parte desta aplicação.
+Interface **v0.5.1**, com o Clássico **v0.3** preservado, Corrida aos Pontos e CO-OP 2vs2 / RAID 2. Edição principal com 90 cartas únicas de 1 a 90. A variante 1–45 não faz parte desta aplicação.
 
 ## Controlo dos jogadores
 
@@ -13,7 +13,7 @@ Interface **v0.5.0**, com o Clássico **v0.3** preservado, Corrida aos Pontos e 
 
 - **Clássico:** uma partida, 2–5 jogadores, pontuação original v0.3 e vitória partilhada nos empates.
 - **Corrida aos Pontos:** partidas completas com classificação acumulada. Metas: 2 jogadores = 45, 3 = 50, 4 ou 5 = 55. O campeonato termina depois de uma partida completa em que alguém atinge a meta; ganha o maior acumulado, com empates partilhados.
-- **CO-OP 2vs2:** exatamente quatro jogadores, nas equipas 1A/1B e 2A/2B. As bases A/B são sorteadas dentro de cada equipa no início da sessão. A ordem circular é 1A → 2A → 1B → 2B. A primeira posição nessa ordem é sorteada.
+- **CO-OP 2vs2:** exatamente quatro jogadores, nas equipas 1A/1B e 2A/2B. As bases A/B são sorteadas dentro de cada equipa no início da sessão. A ordem circular é 1A → 2B → 1B → 2A. A primeira posição nessa ordem é sorteada.
 
 No final do CO-OP, a **base A fica em cima e a B em baixo**, sem espelhar, rodar ou trocar colunas. A linha inferior de A e a superior de B formam até três quadrados 2×2. Cada quadrado de quatro símbolos iguais vale +4; quadrados sobrepostos contam e as estrelas também são válidas. Pelo menos um quadrado completo ativa todos os contactos verticais de símbolos iguais na fronteira: +1 por par normal ou +2 por par de estrelas. Sem quadrado, esses contactos valem zero. Não existem bónus numéricos que atravessem a fronteira.
 
@@ -77,10 +77,12 @@ npm start
 
 Abre `http://localhost:4173`. Para um iPad na mesma rede, utiliza o endereço de rede do computador e a porta 4173, se o acesso da rede estiver permitido. A instalação e a disponibilidade offline requerem HTTPS ou localhost.
 
-O motor é independente da interface. `scoring.js` preserva a função de pontuação da v0.3; `session.js` gere campeonatos, equipas, RAID, atribuição A/B e gravações. Os 30 testes conferem a preparação contra 16 distribuições originais, vizinhança, pontuação clássica, conservação das cartas, todos os critérios de RAID, acumulação, metas, desempates, ordem cooperativa, rotação inicial, compatibilidade das gravações e informação oculta da máquina.
+O motor é independente da interface. `scoring.js` preserva a função de pontuação da v0.3; `session.js` gere campeonatos, equipas, RAID, atribuição A/B e gravações. Os 32 testes conferem a preparação contra 16 distribuições originais, vizinhança, pontuação clássica, conservação das cartas, todos os critérios de RAID, acumulação, metas, desempates, ordem cooperativa, rotação inicial, compatibilidade das gravações e informação oculta da máquina.
 
 ## Publicação
 
 GitHub Pages: em **Settings → Pages → Source**, selecionar **GitHub Actions**. O workflow testa o motor e publica os ficheiros do jogo após cada alteração em `main`. O site é estático e não envia o estado das partidas para um servidor.
 
 Referência de apresentação e movimento: [Eternal Sevens / deckades](https://deckades.net/Sevens/). O código e os recursos dessa referência não foram copiados.
+
+A correção v0.5.1 usa a ordem CO-OP 1A → 2B → 1B → 2A em novas sessões. Gravações anteriores conservam a ordem original para recuperar exatamente as cartas e decisões; a interface identifica essas sessões como «ORDEM ANTERIOR». Inicia uma nova sessão para testar a ordem corrigida.

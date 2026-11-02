@@ -1,11 +1,11 @@
 import {intervalScore} from './scoring.js';
 export {intervalScore};
-export const VERSION='0.4.0';
+export const VERSION='0.5.0';
 export const RULES='0.3';
 export const FAMILIES=[3,3,0,2,2,3,0,2,0,2,2,3,3,1,2,2,2,1,2,0,2,1,0,1,1,3,4,2,1,3,2,3,0,1,0,0,1,2,0,3,1,0,1,1,1,1,1,3,1,4,1,3,1,4,1,1,0,2,1,4,3,0,3,0,2,3,4,4,3,0,2,3,0,2,2,0,0,0,4,0,3,3,3,3,2,4,4,2,0,4];
 const copy=s=>JSON.parse(JSON.stringify(s));
 function random(s){let t=s.rng+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);s.rng>>>=0;return ((t^t>>>14)>>>0)/4294967296;}
-export const current=s=>(s.first+s.turn)%s.n;
+export const current=s=>s.order?s.order[(s.first+s.turn)%s.n]:(s.first+s.turn)%s.n;
 export const round=s=>Math.min(12,Math.floor(s.turn/s.n)+1);
 const sort=(a,b)=>a.v-b.v;
 export function setup(n=2,seed=1){
@@ -42,7 +42,7 @@ export function legalMoves(s){
 }
 // Imperfect-information heuristic: receives only the current hand and public cards.
 // It never reads deck order or another player's hand.
-export function chooseMove(s){
+export function chooseMove(s,cooperative=null){
  if(s.done)return null;
  const p=current(s),a=s.players[p];
  const unavailable=new Set(s.players.flatMap(x=>x.grid.filter(Boolean).map(c=>c.v)));
@@ -68,10 +68,23 @@ export function chooseMove(s){
  let best=null,bestValue=-Infinity;
  for(const m of legalMoves(s)){
   const grid=a.grid.slice();grid[m.cell]=s.market.find(c=>c.v===m.v);
-  const v=potential(grid)+((m.v*13+m.cell*7+s.turn*3)%37)*.00001;
+  const v=potential(grid)+(cooperative?cooperativePotential(grid,cooperative.partnerGrid,cooperative.board):0)+((m.v*13+m.cell*7+s.turn*3)%37)*.00001;
   if(v>bestValue){best=m;bestValue=v;}
  }
  return best;
+}
+function cooperativePotential(own,partner,board){
+ const top=board==='A'?own:partner,bottom=board==='A'?partner:own;
+ const a=top.slice(8,12),b=bottom.slice(0,4);
+ let value=0,activated=false;
+ for(let c=0;c<3;c++){
+  const cards=[a[c],a[c+1],b[c],b[c+1]].filter(Boolean);
+  if(cards.length&&cards.every(x=>x.k===cards[0].k)){
+   if(cards.length===4){value+=4;activated=true;}else value+=4*(cards.length/4)**2*.65;
+  }
+ }
+ for(let c=0;c<4;c++)if(a[c]&&b[c]&&a[c].k===b[c].k)value+=(a[c].k===4?2:1)*(activated?1:.15);
+ return value;
 }
 export function serialize(seed,n,mode,moves){return {schema:1,appVersion:VERSION,rules:RULES,seed,n,mode,moves};}
 export function restore(record){

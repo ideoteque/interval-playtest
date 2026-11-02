@@ -1,14 +1,19 @@
-import {setup,move,current,round,neighbors,intervalScore,chooseMove,serialize,restore,VERSION} from './engine.js';
+import {setup,current,round,neighbors,intervalScore,VERSION} from './engine.js';
+import {createSession,sessionMove,nextRound,sessionRecord,restoreSession,teamResult,target,sessionWinners,chooseSessionMove,undoSession} from './session.js';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const ASSETS=['eye','record','severance','x-code','star'];
 const NAMES=['olho','disco','forma orgânica','flor rosa','estrela'];
-const STORE='interval-playtest-v04';
+const STORE='interval-playtest-v05';
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 let game=null,mode='ai',history=[],offered=null,taken=null,busy=false,generation=0,saved=null,driverActive=false;
-let closingResult=false;
-try{const raw=localStorage.getItem(STORE);if(raw){saved=JSON.parse(raw);restore(saved);}}catch{saved=null;}
+let session=null;
+for(const key of [STORE,'interval-playtest-v04']){try{const raw=localStorage.getItem(key);if(raw){const rec=JSON.parse(raw);restoreSession(rec);saved=rec;break;}}catch{}}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const name=p=>mode==='ai'?(p===0?'Tu':`Máquina${game.n>2?' '+p:''}`):`Jogador ${String.fromCharCode(65+p)}`;
+const coop=()=>session?.options.variant==='coop';
+const championship=()=>session?.options.championship===true;
+const name=p=>coop()?`${mode==='manual'?'Jogador':p===0?'Tu':p===2?'Parceiro IA':'IA'} · ${session.roles[p].team+1}${session.roles[p].board}`:mode==='ai'?(p===0?'Tu':`Máquina${game.n>2?' '+p:''}`):`Jogador ${String.fromCharCode(65+p)}`;
+const variantName=()=>({classic:'CLÁSSICO',race:'CORRIDA AOS PONTOS',coop:'CO-OP 2vs2'})[session?.options.variant||'classic'];
+function sync(s){session=s;game=s.game;mode=s.options.mode;history=s.rounds.at(-1).moves;}
 const isAI=()=>!!game&&mode==='ai'&&current(game)!==0&&!game.done;
 const canAct=()=>!!game&&!game.done&&!busy&&!isAI();
 const pointWord=n=>n===1?'ponto':'pontos';
@@ -19,19 +24,23 @@ function announce(t){$('#live').textContent=t;}
 function toast(t){$('.toast')?.remove();const el=document.createElement('div');el.className='toast';el.textContent=t;el.setAttribute('role','status');document.body.append(el);setTimeout(()=>el.remove(),4500);}
 function save(){
  if(!game)return;
- saved=serialize(game.seed,game.n,mode,history);
+ saved=sessionRecord(session);
  try{localStorage.setItem(STORE,JSON.stringify(saved));$('#save-status').textContent='GUARDADO NESTE DISPOSITIVO';}catch{$('#save-status').textContent='USA «GUARDAR» PARA EXPORTAR';}
 }
 function score(p){return intervalScore(game.players[p].grid,3,game.done);}
 function renderBoards(){
- $('#boards').innerHTML=game.players.map((a,p)=>{
+ const boardHTML=p=>{const a=game.players[p];
   const s=score(p),active=!game.done&&current(game)===p;
-  return `<article class="player-board ${active?'active':''}" data-player="${p}"><div class="player-title"><strong>${name(p)}</strong><small>${a.grid.filter(Boolean).length}/12</small><button class="player-score" data-score="${p}" aria-label="Ver pontuação de ${name(p)}"><b>${s.total}</b> pts${!game.done&&s.finalBonusPotential?`<sup>+${s.finalBonusPotential} no fim</sup>`:''}</button></div><div class="mat"><img class="board-art" src="assets/motherboard.png" alt="Base individual original com grelha de três linhas e quatro colunas">${a.grid.map((c,i)=>{
+  const art=coop()?`motherboard-${session.roles[p].board.toLowerCase()}.png`:'motherboard.png';
+  return `<article class="player-board ${active?'active':''}" data-player="${p}"><div class="player-title"><strong>${name(p)}</strong><small>${a.grid.filter(Boolean).length}/12</small><button class="player-score" data-score="${p}" aria-label="Ver pontuação de ${name(p)}"><b>${s.total}</b> pts${!game.done&&s.finalBonusPotential?`<sup>+${s.finalBonusPotential} no fim</sup>`:''}</button></div><div class="mat"><img class="board-art" src="assets/${art}" alt="Base ${coop()?session.roles[p].board:'individual'} com grelha de três linhas e quatro colunas">${a.grid.map((c,i)=>{
    const left=([48.05,194.77,341.49,488.2][i%4]/680.31)*100,top=([49.15,197.29,345.44][Math.floor(i/4)]/538.58)*100;
    const available=!c&&active&&taken!==null&&canAct();
    return `<button class="cell ${c?'occupied':'empty'} ${available?'available':''}" style="left:${left}%;top:${top}%" data-cell="${i}" data-player="${p}" ${available?'':'disabled'} aria-label="${name(p)}, linha ${Math.floor(i/4)+1}, coluna ${i%4+1}${c?', '+cardLabel(c):', casa livre'}">${c?cardHTML(c):''}</button>`;
   }).join('')}</div></article>`;
- }).join('');
+ };
+ $('#boards').classList.toggle('coop-boards',coop());
+ if(coop())$('#boards').innerHTML=[0,1].map(team=>{const a=session.roles.findIndex(r=>r.team===team&&r.board==='A'),b=session.roles.findIndex(r=>r.team===team&&r.board==='B');return `<section class="team-stack ${game.done?'joined':''}" aria-label="Equipa ${team+1}, base A em cima e B em baixo"><div class="team-heading">EQUIPA ${team+1}<span>${game.done?'RAID 2 · UNIÃO FINAL':'A ↓ · ↑ B'}</span></div>${boardHTML(a)}${game.done?'<div class="raid-seam" aria-label="Fronteira RAID 2"></div>':''}${boardHTML(b)}</section>`;}).join('');
+ else $('#boards').innerHTML=game.players.map((_,p)=>boardHTML(p)).join('');
 }
 function renderMarket(){
  const a=game.players[current(game)];
@@ -40,7 +49,7 @@ function renderMarket(){
  const legal=offered===null?[]:neighbors(game,offered);
  $('#market-cards').innerHTML=cards.map((c,i)=>{
   const isOffer=card?.v===c.v,highlight=legal.includes(c.v)&&taken===null,allowed=highlight&&canAct(),draggable=taken===c.v&&canAct();
-  const left=(35.93+164.41*i)/1360.63*100;
+  const left=([23.6,188.01,352.42,516.83,693.57,857.98,1022.39][i])/1360.63*100;
   return `<button class="market-card ${isOffer?'offered':''} ${highlight?'legal':''} ${taken===c.v?'chosen':''} ${card&&!legal.includes(c.v)&&!isOffer?'dimmed':''}" data-market="${c.v}" style="left:${left}%;touch-action:${allowed||draggable?'none':'auto'}" ${allowed||draggable?'':'disabled'} aria-label="${cardLabel(c)}${isOffer?', carta entregue':allowed?', vizinha disponível':''}">${cardHTML(c)}</button>`;
  }).join('');
  $('#draw-pile').innerHTML=game.deck.length?`<div class="pile-position">${backHTML()}</div>`:'';
@@ -67,10 +76,16 @@ function renderInstruction(){
  $('#cancel-btn').hidden=offered===null||ai||game.done;
  $('#cancel-btn').disabled=busy;
  $('#undo-btn').disabled=busy||driverActive||!history.length;
- $('#round-label').textContent=`${game.done?'FINAL':`RONDA ${round(game)} / 12`} · BARALHO ${game.seed}`;
- $('#mode-label').textContent=mode==='ai'?'TU × MÁQUINA':'MESA DE TESTE · TODAS AS MÃOS';
+ $('#round-label').textContent=`${championship()?`PARTIDA ${session.rounds.length} · `:''}${game.done?'FINAL':`RONDA ${round(game)} / 12`} · BARALHO ${game.seed}`;
+ $('#mode-label').textContent=`${variantName()} · ${mode==='ai'?(coop()?'TU + PARCEIRO IA × IA + IA':'TU × MÁQUINA'):'MESA DE TESTE'}`;
 }
-function render(){if(!game)return;renderBoards();renderMarket();renderHand();renderInstruction();}
+function renderStandings(){
+ const el=$('#session-bar');el.hidden=!championship()&&!coop();if(el.hidden)return;
+ const labels=coop()?['Equipa 1','Equipa 2']:game.players.map((_,p)=>name(p));
+ const values=championship()?session.totals:[0,1].map(t=>teamResult(session,t).total);
+ el.innerHTML=`<div class="session-caption">${championship()?`PARTIDA ${session.rounds.length} · META ${target(session)} PONTOS`:'PONTUAÇÃO CONJUNTA · RAID 2 NO FINAL'}</div><div class="session-scores">${labels.map((label,i)=>`<button class="session-score" ${coop()?`data-team-score="${i}"`:'data-standings'}>${label}<b>${values[i]}</b>${championship()?`<small>/ ${target(session)}</small>`:''}</button>`).join('')}${championship()?'<button class="quiet" data-standings>Classificação ↗</button>':''}${game.done&&!session.finished?'<button class="primary" data-next-round>Próxima partida →</button>':''}</div>`;
+}
+function render(){if(!game)return;renderStandings();renderBoards();renderMarket();renderHand();renderInstruction();}
 function rect(el){return el?.getBoundingClientRect();}
 async function fly(c,from,to){
  if(!from||!to||reduce.matches)return;
@@ -95,11 +110,11 @@ function takeNeighbor(v,automated=false){
 async function place(cell,automated=false){
  if((!automated&&!canAct())||busy||taken===null)return;
  const gen=generation,p=current(game),m={h:offered,v:taken,cell},c=game.market.find(c=>c.v===taken),from=rect($(`[data-market="${taken}"]`)),to=rect($(`.cell[data-player="${p}"][data-cell="${cell}"]`));
- let next;try{next=move(game,m);}catch(e){toast(e.message);return;}
+ let next;try{next=sessionMove(session,m);}catch(e){toast(e.message);return;}
  busy=true;render();
  await fly(c,from,to);
  if(gen!==generation)return;
- game=next;history.push(m);offered=null;taken=null;busy=false;save();render();
+ sync(next);offered=null;taken=null;busy=false;save();render();
  announce(`${name(p)} colocou ${c.v} na linha ${Math.floor(cell/4)+1}, coluna ${cell%4+1}.`);
  if(!game.done){const draw=game.players[p].hand.at(-1);if(current(game)===p&&draw)await fly(draw,rect($('.pile-position')),rect($('.hand .card')));}
  if(game.done){showResults();return;}
@@ -113,19 +128,20 @@ async function driveAI(){
   while(isAI()&&gen===generation){
    if(!await check())return;
    await sleep(reduce.matches?80:650);if(!await check())return;
-   const m=chooseMove(game);await selectOffer(m.h,true);
+   const m=chooseSessionMove(session);await selectOffer(m.h,true);
    await sleep(reduce.matches?40:400);if(!await check())return;takeNeighbor(m.v,true);
    await sleep(reduce.matches?40:500);if(!await check())return;await place(m.cell,true);
   }
  }catch(e){toast('Não foi possível concluir a jogada. A partida está guardada.');console.error(e);}
  finally{if(gen===generation){driverActive=false;render();if(canAct())$('[data-hand="0"]')?.focus({preventScroll:true});}}
 }
-function start(n,seed,newMode){
- generation++;offered=null;taken=null;busy=false;driverActive=false;game=setup(n,seed);mode=newMode;history=[];save();render();$('#setup-dialog').close();announce(`Começa ${name(current(game))}.`);driveAI();
+function start(n,seed,newMode,variant='classic',teamRace=false){
+ generation++;offered=null;taken=null;busy=false;driverActive=false;sync(createSession({n,seed,mode:newMode,variant,championship:teamRace}));save();render();$('#setup-dialog').close();announce(`Começa ${name(current(game))}.`);driveAI();
 }
 function resume(record){
- const restored=restore(record);generation++;game=restored;mode=record.mode;history=structuredClone(record.moves);offered=null;taken=null;busy=false;driverActive=false;save();render();$('#setup-dialog').close();driveAI();
+ const restored=restoreSession(record);generation++;sync(restored);offered=null;taken=null;busy=false;driverActive=false;save();render();$('#setup-dialog').close();if(game.done)showResults();else driveAI();
 }
+function advance(){if(!game?.done||session.finished||busy)return;try{const next=nextRound(session);generation++;offered=null;taken=null;busy=false;driverActive=false;sync(next);$('#info-dialog').close();save();render();announce(`Partida ${session.rounds.length}. Começa ${name(current(game))}.`);driveAI();}catch(e){toast(e.message);}}
 function setupDialog(){
  $('#resume-btn').hidden=!saved;$('#setup-error').textContent='';$('#setup-dialog [data-close]').hidden=!game;
  $('#setup-dialog').showModal();
@@ -139,23 +155,35 @@ function breakdown(p){
  const rows=[['Contactos horizontais',s.horizontalPoints],['Contactos verticais',s.verticalPoints],['Linhas crescentes · +3 cada',s.rows],['Colunas decrescentes · +1 cada',s.descendingCols],['Linhas de símbolos iguais · +3 cada',s.symbolRows],['Colunas de símbolos iguais · +2 cada',s.symbolCols],['Sequências horizontais · +8 cada',s.perfectRows],['Sequências verticais · +4 cada',s.perfectCols]];
  return `<section class="score-section"><h3>${name(p)}</h3><table class="score-table"><tbody>${tableRows(rows)}</tbody><tfoot><tr><td>${game.done?'Total final':'Total atual'}</td><td>${s.total}</td></tr></tfoot></table>${!game.done?`<p class="score-preview">Previsão final: <b>${s.baseTotal+s.finalBonusPotential}</b> pontos. Os ${s.finalBonusPotential} pontos de sequências entram apenas no fim.</p>`:''}<p class="score-detail"><b>Pares em contacto:</b> ${pairs}.<br>Cada par conta uma vez. Inclui contactos verticais entre as três linhas.</p></section>`;
 }
-function showScores(p=null){if(!game)return;info(`<div class="score-content"><h2>Cada ponto, explicado.</h2>${p===null?game.players.map((_,p)=>breakdown(p)).join(''):breakdown(p)}</div>`,'GRELHAS PÚBLICAS / PONTUAÇÃO');}
-function showRules(){info(`<div class="rules-content"><h2>Encontra o teu intervalo.</h2><p>Uma grelha de <b>3 × 4</b>, três cartas na mão e seis no mercado. Tens 12 turnos para somar o máximo de pontos.</p><ol><li><b>Entrega.</b> Escolhe uma carta da mão. Ela entra no mercado por ordem numérica.</li><li><b>Retira.</b> Escolhe a vizinha imediata à esquerda ou à direita da carta entregue. Numa extremidade há só uma escolha. A carta entregue fica no mercado.</li><li><b>Coloca.</b> Põe a carta retirada numa casa livre da tua grelha. Fica nesse lugar até ao fim. Repões a mão, exceto no 12.º turno.</li></ol><table class="score-table"><tbody>${tableRows(summaryRows)}</tbody></table><p>Os prémios <b>acumulam</b>. Uma linha 21–22–23–24 vale 3 + 8 = <b>11 pontos</b>, além de contactos e símbolos. Uma coluna 43–42–41 vale 1 + 4 = <b>5 pontos</b>.</p><p>As estrelas só combinam com estrelas. Não há diagonais nem ligação entre 90 e 1. Cada contacto ortogonal conta uma vez. A partida termina quando todas as grelhas estiverem cheias; os empates dão vitória partilhada.</p><p><b>Como controlar:</b> toca numa carta, numa vizinha e numa casa livre. Também podes arrastar a vizinha até à grelha. No modo de teste controlas todas as mãos; contra a máquina, só a tua mão é revelada.</p><p>A máquina usa uma estratégia local de pontuação e alinhamentos. Não vê outras mãos nem a ordem do monte. Não utiliza um serviço externo de IA.</p><p><a href="docs/regras.pdf" target="_blank" rel="noopener">Abrir livro de regras ilustrado ↗</a></p></div>`,'REGRAS v0.3 / 1–90');}
+function teamBreakdown(t){
+ const r=teamResult(session,t),c=r.coop,gridA=game.players[r.a].grid,gridB=game.players[r.b].grid;
+ const squares=c.squares.map(s=>`colunas ${s.column+1}–${s.column+2} (${NAMES[s.family]})`).join('; ')||'nenhum';
+ const pairs=c.contacts.map(e=>`coluna ${e.column+1}: ${e.values.join('–')} (${e.points} pts${c.activated?'':', inativo'})`).join('; ')||'nenhum';
+ return `<section class="score-section"><h3>Equipa ${t+1} · RAID 2</h3><div class="frontier-preview" aria-label="Linha inferior de A unida à linha superior de B"><span>Base A · linha 3</span><div>${gridA.slice(8).map(x=>x?cardHTML(x):'<span class="frontier-empty"></span>').join('')}</div><div>${gridB.slice(0,4).map(x=>x?cardHTML(x):'<span class="frontier-empty"></span>').join('')}</div><span>Base B · linha 1</span></div><table class="score-table"><tbody>${tableRows([[name(r.a),r.individual[0]],[name(r.b),r.individual[1]],[`Quadrados 2×2: ${c.squares.length} × 4`,c.squarePoints],[`Contactos da fronteira: ${c.activated?'ativados':'inativos'}`,c.contactPoints],['RAID contabilizado nesta partida',game.done?c.total:0]])}</tbody><tfoot><tr><td>Total da equipa</td><td>${r.total}</td></tr></tfoot></table><p class="score-detail"><b>Quadrados:</b> ${squares}.<br><b>Contactos:</b> ${pairs}.<br>${game.done?'As grelhas juntam-se A em cima e B em baixo.':'Prévia dos padrões já presentes. O bónus RAID só entra no final.'} Os quadrados sobrepostos contam; basta um para ativar todos os pares iguais da fronteira.</p></section>`;
+}
+function showScores(p=null){if(!game)return;info(`<div class="score-content"><h2>Cada ponto, explicado.</h2>${p===null?(coop()?[0,1].map(teamBreakdown).join(''):'')+game.players.map((_,p)=>breakdown(p)).join(''):breakdown(p)}</div>`,'GRELHAS PÚBLICAS / PONTUAÇÃO');}
+function showTeamScores(t){info(`<div class="score-content"><h2>A tua equipa, em detalhe.</h2>${teamBreakdown(t)}</div>`,'CO-OP / FRONTEIRA RAID 2');}
+function showStandings(){
+ const labels=coop()?['Equipa 1','Equipa 2']:game.players.map((_,p)=>name(p));
+ info(`<div class="score-content"><h2>Corrida aos ${target(session)}.</h2><p class="score-detail">Só contam partidas completas. Quando a meta é atingida, ganha a maior pontuação acumulada. Empates dão vitória partilhada.</p><div class="standings-scroll"><table class="score-table"><thead><tr><th>Partida</th>${labels.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${session.results.map((row,i)=>`<tr><td>${i+1}</td>${row.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${labels.length+1}">Ainda não há partidas concluídas.</td></tr>`}</tbody><tfoot><tr><td>Total</td>${session.totals.map(v=>`<td>${v}</td>`).join('')}</tr></tfoot></table></div><p class="score-detail">Partida atual: ${session.rounds.length}${game.done?' · concluída':' · em curso, ainda não somada'}. Quem começa avança um lugar na ordem de jogo em cada nova partida.</p></div>`,'CLASSIFICAÇÃO DO CAMPEONATO');
+}
+function showRules(){info(`<div class="rules-content"><h2>Encontra o teu intervalo.</h2><p>Uma grelha de <b>3 × 4</b>, três cartas na mão e seis no mercado. Tens 12 turnos para somar o máximo de pontos.</p><ol><li><b>Entrega.</b> Escolhe uma carta da mão. Ela entra no mercado por ordem numérica.</li><li><b>Retira.</b> Escolhe a vizinha imediata à esquerda ou à direita da carta entregue. Numa extremidade há só uma escolha. A carta entregue fica no mercado.</li><li><b>Coloca.</b> Põe a carta retirada numa casa livre da tua grelha. Fica nesse lugar até ao fim. Repões a mão, exceto no 12.º turno.</li></ol><table class="score-table"><tbody>${tableRows(summaryRows)}</tbody></table><p>Os prémios <b>acumulam</b>. Uma linha 21–22–23–24 vale 3 + 8 = <b>11 pontos</b>, além de contactos e símbolos. Uma coluna 43–42–41 vale 1 + 4 = <b>5 pontos</b>.</p><p>As estrelas só combinam com estrelas. Não há diagonais nem ligação entre 90 e 1. Cada contacto ortogonal conta uma vez. A partida termina quando todas as grelhas estiverem cheias; os empates dão vitória partilhada.</p><p><b>Como controlar:</b> toca numa carta, numa vizinha e numa casa livre. Também podes arrastar a vizinha até à grelha. No modo de teste controlas todas as mãos; contra a máquina, só a tua mão é revelada.</p><p>A máquina usa uma estratégia local de pontuação e alinhamentos. Não vê outras mãos nem a ordem do monte. Não utiliza um serviço externo de IA.</p><h3>Corrida aos Pontos</h3><p>Joga partidas completas e soma os resultados. Metas: <b>2 jogadores: 45; 3: 50; 4 ou 5: 55 pontos</b>. A vitória só é verificada no fim da partida: vence a maior pontuação acumulada, mesmo que vários ultrapassem a meta. O primeiro jogador é sorteado na primeira partida e avança um lugar nas seguintes.</p><h3>CO-OP 2vs2 · RAID 2</h3><p>Equipa 1: 1A e 1B. Equipa 2: 2A e 2B. A ordem circular é <b>1A → 2A → 1B → 2B</b>. Cada equipa recebe bases A/B sorteadas e constrói duas grelhas independentes. No final, <b>A fica em cima e B em baixo</b>, sem rotação nem troca de colunas.</p><p>A linha inferior de A e a superior de B formam até três quadrados 2×2. Cada quadrado com quatro símbolos iguais vale <b>+4</b>; os quadrados podem sobrepor-se e as estrelas também são válidas. <b>Pelo menos um quadrado ativa todos os contactos verticais iguais da fronteira</b>: +1 por par normal, +2 por par de estrelas. Sem quadrado, esses contactos valem zero. Não há bónus numéricos que atravessem a união.</p><p>Somam-se as duas pontuações individuais e o RAID. Podes jogar uma partida única ou um campeonato até <b>100 pontos por equipa</b>. A aplicação não utiliza discos. O parceiro IA coordena-se apenas pelo estado público das grelhas; não partilha mãos nem conhece a ordem do monte.</p><p><a href="docs/regras.pdf" target="_blank" rel="noopener">Abrir livro ilustrado do Clássico v0.3 ↗</a></p></div>`,'CLÁSSICO v0.3 / NOVOS MODOS v0.5');}
 function showResults(){
- const scores=game.players.map((_,p)=>({p,total:score(p).total})).sort((a,b)=>b.total-a.total),w=scores.filter(x=>x.total===scores[0].total);
- info(`<div class="score-content"><h2>${w.length>1?'Uma vitória partilhada.':w[0].p===0&&mode==='ai'?'O intervalo foi teu.':`${name(w[0].p)} venceu.`}</h2><p class="score-detail">Todas as sequências perfeitas já entraram na pontuação.</p>${scores.map(x=>`<div class="result-rank"><span>${name(x.p)}${w.some(y=>y.p===x.p)?' · vencedor':''}</span><b>${x.total}</b></div>`).join('')}<div class="save-actions"><button class="primary" data-result-new>Outra partida →</button><button class="outline" data-result-score>Ver os pontos</button></div></div>`,'PARTIDA CONCLUÍDA');
+ const points=championship()?session.totals:session.results.at(-1),w=sessionWinners(session),ranking=points.map((total,p)=>({p,total})).sort((a,b)=>b.total-a.total),label=p=>coop()?`Equipa ${p+1}`:name(p);
+ const title=!session.finished?`Partida ${session.rounds.length} concluída.`:w.length>1?'Uma vitória partilhada.':coop()?`Equipa ${w[0]+1} venceu.`:w[0]===0&&mode==='ai'?'O intervalo foi teu.':`${name(w[0])} venceu.`;
+ info(`<div class="score-content"><h2>${title}</h2><p class="score-detail">${championship()?`Meta: ${target(session)} pontos. ${session.finished?'Campeonato terminado.':'A corrida continua; ainda ninguém atingiu a meta.'}`:'Todas as sequências perfeitas já entraram na pontuação.'}${coop()?' As bases A e B estão agora unidas para pontuar RAID 2.':''}</p>${ranking.map(x=>`<div class="result-rank"><span>${label(x.p)}${session.finished&&w.includes(x.p)?' · vencedor':''}${championship()?`<small> +${session.results.at(-1)[x.p]} nesta partida</small>`:''}</span><b>${x.total}</b></div>`).join('')}<div class="save-actions">${!session.finished?'<button class="primary" data-next-round>Próxima partida →</button>':'<button class="primary" data-result-new>Jogar novamente →</button>'}<button class="outline" data-result-score>Ver os pontos</button>${coop()?'<button class="quiet" data-result-union>Ver união RAID 2 ↓</button>':''}${championship()?'<button class="quiet" data-result-standings>Classificação completa</button>':''}</div></div>`,'PARTIDA CONCLUÍDA');
 }
 function undo(){
  if(busy||driverActive||!history.length)return;
- let remaining=history.slice(0,-1),s=restore(serialize(game.seed,game.n,mode,remaining));
- if(mode==='ai')while(remaining.length&&current(s)!==0){remaining.pop();s=restore(serialize(game.seed,game.n,mode,remaining));}
- generation++;game=s;history=remaining;offered=null;taken=null;save();render();toast(mode==='ai'?'Voltaste ao teu turno anterior.':'Último turno desfeito.');driveAI();
+ generation++;sync(undoSession(session));offered=null;taken=null;save();render();toast(mode==='ai'?'Voltaste ao teu turno anterior.':'Último turno desfeito.');driveAI();
 }
 function exportGame(){
- if(!game)return;const b=new Blob([JSON.stringify(serialize(game.seed,game.n,mode,history),null,2)],{type:'application/json'}),url=URL.createObjectURL(b);const a=document.createElement('a');a.href=url;a.download=`interval-${game.seed}-turno-${game.turn}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ if(!game)return;const b=new Blob([JSON.stringify(sessionRecord(session),null,2)],{type:'application/json'}),url=URL.createObjectURL(b);const a=document.createElement('a');a.href=url;a.download=`interval-${session.options.variant}-${session.options.seed}-partida-${session.rounds.length}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function saveMenu(){info(`<div class="rules-content"><h2>A tua mesa, guardada.</h2><p>A partida fica guardada automaticamente neste navegador. Para a continuar no iPad ou noutro computador, exporta o ficheiro e carrega-o no outro dispositivo.</p><div class="save-actions"><button class="primary" data-export>Exportar partida ↓</button><button class="outline" data-import>Carregar partida ↑</button></div><p>Baralho: <b>${game.seed}</b> · ${game.turn} turnos jogados.<br>O mesmo código e número de jogadores reproduzem a mesma distribuição inicial.</p><p>iPad: abre a ligação no Safari. Em Partilhar, escolhe <b>Adicionar ao ecrã principal</b>. Depois da primeira abertura completa, o jogo também pode funcionar sem ligação.</p><p>A gravação é local: não sincroniza automaticamente entre dispositivos.</p></div>`,'GUARDAR / CONTINUAR');}
-$('#setup-form').addEventListener('submit',e=>{e.preventDefault();const seedText=$('#seed-input').value.trim(),seed=seedText?Number(seedText):crypto.getRandomValues(new Uint32Array(1))[0];if(!Number.isInteger(seed)||seed<0||seed>0xffffffff){$('#setup-error').textContent='Usa um número entre 0 e 4294967295.';return;}start(Number($('#player-count').value),seed,$('input[name="mode"]:checked').value);});
+function saveMenu(){info(`<div class="rules-content"><h2>A tua mesa, guardada.</h2><p>A sessão inteira, incluindo as partidas anteriores e a classificação do campeonato, fica guardada automaticamente neste navegador. Para a continuar no iPad ou noutro computador, exporta o ficheiro e carrega-o no outro dispositivo.</p><div class="save-actions"><button class="primary" data-export>Exportar partida ↓</button><button class="outline" data-import>Carregar partida ↑</button></div><p>Modo: <b>${variantName()}</b> · partida ${session.rounds.length}.<br>Baralho da sessão: <b>${session.options.seed}</b> · ${game.turn} turnos nesta partida.<br>O mesmo código e número de jogadores reproduzem a mesma distribuição inicial.</p><p>iPad: abre a ligação no Safari. Em Partilhar, escolhe <b>Adicionar ao ecrã principal</b>. Depois da primeira abertura completa, o jogo também pode funcionar sem ligação.</p><p>A gravação é local: não sincroniza automaticamente entre dispositivos.</p></div>`,'GUARDAR / CONTINUAR');}
+function setupMode(){const isCoop=$('#game-type').value==='coop';$('#player-count').disabled=isCoop;if(isCoop)$('#player-count').value='4';$('#coop-race-option').hidden=!isCoop;$('#game-description').textContent=isCoop?'Duas equipas, bases A/B sorteadas. O parceiro IA observa apenas as grelhas públicas.':$('#game-type').value==='race'?'Partidas completas até 45/50/55/55 pontos, conforme o número de jogadores.':'Uma partida de 12 turnos por jogador. Regras clássicas v0.3.';}
+$('#game-type').addEventListener('change',setupMode);
+$('#setup-form').addEventListener('submit',e=>{e.preventDefault();const seedText=$('#seed-input').value.trim(),seed=seedText?Number(seedText):crypto.getRandomValues(new Uint32Array(1))[0];if(!Number.isInteger(seed)||seed<0||seed>0xffffffff){$('#setup-error').textContent='Usa um número entre 0 e 4294967295.';return;}start(Number($('#player-count').value),seed,$('input[name="mode"]:checked').value,$('#game-type').value,$('#coop-race').checked);});
 $('#resume-btn').onclick=()=>{try{resume(saved);}catch(e){toast(e.message);}};
 $('#new-btn').onclick=setupDialog;$('#rules-btn').onclick=showRules;$('#scores-btn').onclick=()=>showScores();$('#undo-btn').onclick=undo;$('#save-menu-btn').onclick=saveMenu;
 $('#cancel-btn').onclick=()=>{offered=null;taken=null;render();$('[data-hand="0"]')?.focus({preventScroll:true});};
@@ -165,12 +193,17 @@ document.addEventListener('click',e=>{
  const m=e.target.closest('[data-market]');if(m&&!m.disabled){takeNeighbor(Number(m.dataset.market));return;}
  const cell=e.target.closest('[data-cell]');if(cell&&!cell.disabled){place(Number(cell.dataset.cell));return;}
  const sc=e.target.closest('[data-score]');if(sc){showScores(Number(sc.dataset.score));return;}
+ const team=e.target.closest('[data-team-score]');if(team){showTeamScores(Number(team.dataset.teamScore));return;}
+ if(e.target.closest('[data-next-round]')){advance();return;}
+ if(e.target.closest('[data-standings]')){showStandings();return;}
  if(e.target.closest('[data-export]'))exportGame();
  if(e.target.closest('[data-import]'))$('#import-file').click();
  if(e.target.closest('[data-result-new]')){$('#info-dialog').close();setupDialog();}
  if(e.target.closest('[data-result-score]')){$('#info-dialog').close();showScores();}
+ if(e.target.closest('[data-result-standings]')){$('#info-dialog').close();showStandings();}
+ if(e.target.closest('[data-result-union]')){$('#info-dialog').close();$('#boards').scrollIntoView({behavior:reduce.matches?'instant':'smooth',block:'start'});}
 });
-$('#import-file').addEventListener('change',async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;try{if(file.size>100000)throw Error('O ficheiro é demasiado grande.');const rec=JSON.parse(await file.text());restore(rec);$('#info-dialog').close();resume(rec);toast('Partida carregada.');}catch{toast('Não foi possível carregar este ficheiro de partida.');}});
+$('#import-file').addEventListener('change',async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;try{if(file.size>2000000)throw Error('O ficheiro é demasiado grande.');const rec=JSON.parse(await file.text());restoreSession(rec);$('#info-dialog').close();resume(rec);toast('Sessão carregada.');}catch{toast('Não foi possível carregar este ficheiro de partida.');}});
 $('#setup-dialog').addEventListener('cancel',e=>{if(!game)e.preventDefault();});
 // Pointer events cover touch, Pencil and mouse. The normal tap sequence remains available.
 let drag=null,suppressClick=false;
@@ -191,5 +224,5 @@ document.addEventListener('pointercancel',()=>{if(drag?.active){drag.el.remove()
 document.addEventListener('click',e=>{if(suppressClick){e.preventDefault();e.stopImmediatePropagation();}},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$$('dialog[open]').length&&offered!==null&&!busy&&!isAI()){offered=null;taken=null;render();}});
 // Keep the initial table recognisable under the start dialog.
-game=setup(2,2026);render();game=null;setupDialog();
+sync(createSession({n:2,seed:2026,mode:'ai',variant:'classic'}));render();game=null;session=null;setupMode();setupDialog();
 if('serviceWorker'in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('./sw.js').catch(()=>{});

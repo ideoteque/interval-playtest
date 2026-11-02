@@ -2,12 +2,26 @@
 
 **[Jogar no navegador](https://ideoteque.github.io/interval-playtest/)**
 
-Interface **v0.4.0**, baseada nas regras pré-fechadas **v0.3**. Edição principal com 90 cartas únicas de 1 a 90. A variante 1–45 não faz parte desta aplicação.
+Interface **v0.5.0**, com o Clássico **v0.3** preservado, Corrida aos Pontos e CO-OP 2vs2 / RAID 2. Edição principal com 90 cartas únicas de 1 a 90. A variante 1–45 não faz parte desta aplicação.
 
-## Dois modos
+## Controlo dos jogadores
 
 - **Mesa de teste:** controlas todas as mãos no mesmo ecrã. Ideal para testar decisões dos dois jogadores. Permite 2–5 jogadores, com passagem automática para a mão seguinte.
 - **Contra a máquina:** és o jogador «Tu»; os restantes lugares são controlados pela máquina. As outras mãos ficam ocultas.
+
+## Modos de jogo v0.5
+
+- **Clássico:** uma partida, 2–5 jogadores, pontuação original v0.3 e vitória partilhada nos empates.
+- **Corrida aos Pontos:** partidas completas com classificação acumulada. Metas: 2 jogadores = 45, 3 = 50, 4 ou 5 = 55. O campeonato termina depois de uma partida completa em que alguém atinge a meta; ganha o maior acumulado, com empates partilhados.
+- **CO-OP 2vs2:** exatamente quatro jogadores, nas equipas 1A/1B e 2A/2B. As bases A/B são sorteadas dentro de cada equipa no início da sessão. A ordem circular é 1A → 2A → 1B → 2B. A primeira posição nessa ordem é sorteada.
+
+No final do CO-OP, a **base A fica em cima e a B em baixo**, sem espelhar, rodar ou trocar colunas. A linha inferior de A e a superior de B formam até três quadrados 2×2. Cada quadrado de quatro símbolos iguais vale +4; quadrados sobrepostos contam e as estrelas também são válidas. Pelo menos um quadrado completo ativa todos os contactos verticais de símbolos iguais na fronteira: +1 por par normal ou +2 por par de estrelas. Sem quadrado, esses contactos valem zero. Não existem bónus numéricos que atravessem a fronteira.
+
+Cada equipa soma as duas grelhas individuais mais o RAID. A variante admite uma partida única ou **campeonato até 100 pontos por equipa**, com as mesmas regras de verificação final e empates.
+
+Em todos os campeonatos, quem começa é sorteado na primeira partida e **avança um lugar na ordem circular** nas seguintes. As bases A/B mantêm-se atribuídas durante o campeonato; cada partida recebe um novo baralho reproduzível.
+
+O CO-OP digital **não utiliza discos**. O parceiro IA observa apenas as grelhas públicas e procura melhorar a pontuação da equipa, sem aceder às mãos de parceiros/adversários ou à ordem do monte. A coordenação e o equilíbrio dos novos modos continuam sujeitos a playtests humanos.
 
 Entrega uma carta da mão, escolhe uma vizinha imediata no mercado e toca numa casa livre. Também podes arrastar uma vizinha do mercado para a grelha. A carta fica fixa depois da colocação.
 
@@ -21,19 +35,19 @@ Não é necessária conta, chave de API, subscrição ou instalação de pacotes
 
 ## Guardar testes
 
-A partida é guardada automaticamente no navegador depois de cada turno completo. Ao reabrir, escolhe **Continuar a partida guardada**. Escolhas ainda não confirmadas numa casa não são guardadas.
+A sessão é guardada automaticamente no navegador depois de cada turno completo, incluindo todas as partidas do campeonato, resultados, classificação e atribuição das bases A/B. Ao reabrir, escolhe **Continuar a sessão guardada**. Escolhas ainda não confirmadas numa casa não são guardadas. As gravações da v0.4 continuam a abrir no Clássico e são convertidas para o novo formato.
 
 Em **Guardar / carregar**, exporta a partida como JSON para continuar noutro dispositivo. A gravação local não sincroniza automaticamente entre iPad e PC. O mesmo código de baralho e número de jogadores reproduzem a distribuição inicial, incluindo o jogador que começa. O botão **Desfazer turno** permite rever decisões; contra a máquina, volta ao teu turno anterior.
 
 ## Arte
 
-Cartas, verso, base individual e faixa de mercado vêm da arte original fornecida em 31/10/2026. Os fundos das cartas são SVG e a numeração utiliza **Doto Black**. As imagens das bases e do verso preservam a tipografia da exportação original. A licença OFL da fonte está em `assets/Doto-OFL.txt`.
+Cartas e verso vêm da arte original de 31/10/2026; as bases individuais A/B e o mercado utilizam a atualização de **02/11/2026**. A posição das cartas no mercado foi ajustada às novas coordenadas. Os fundos das cartas são SVG e a numeração utiliza **Doto Black**. As imagens das bases e do verso preservam a tipografia da exportação original. A licença OFL da fonte está em `assets/Doto-OFL.txt`.
 
 Distribuição numérica/símbolos mantida: olho 20, disco 20, forma orgânica 20, flor rosa 20 e estrelas 10. A forma orgânica usa agora verde/rosa, conforme a revisão da arte.
 
 ## Regras e pontuação
 
-[Livro ilustrado em português](docs/regras.pdf)
+[Livro ilustrado do Clássico v0.3 em português](docs/regras.pdf). Os novos modos estão explicados no botão **Como jogar** e neste documento; o PDF clássico não foi reescrito nesta atualização.
 
 | Critério | Pontos |
 | --- | ---: |
@@ -50,7 +64,7 @@ Os bónus acumulam. As sequências perfeitas entram no total apenas no final; a 
 
 ## Adversário automático
 
-É um adversário local com uma heurística determinista: avalia jogadas legais, contactos, ordenação e possibilidades de completar alinhamentos. Não utiliza um modelo de linguagem, não foi treinado por autojogo e não tem acesso à ordem do monte nem às mãos adversárias. Serve para testar e jogar; a sua força ainda precisa de avaliação com pessoas.
+É um adversário local com uma heurística determinista: avalia jogadas legais, contactos, ordenação e possibilidades de completar alinhamentos. No CO-OP, também avalia os quadrados e contactos possíveis com a grelha pública do parceiro. Não utiliza um modelo de linguagem, não foi treinado por autojogo e não tem acesso à ordem do monte nem a outras mãos. Serve para testar e jogar; a sua força ainda precisa de avaliação com pessoas.
 
 ## Desenvolvimento
 
@@ -63,7 +77,7 @@ npm start
 
 Abre `http://localhost:4173`. Para um iPad na mesma rede, utiliza o endereço de rede do computador e a porta 4173, se o acesso da rede estiver permitido. A instalação e a disponibilidade offline requerem HTTPS ou localhost.
 
-O motor é independente da interface. `scoring.js` preserva a função de pontuação da v0.3. Os testes conferem a preparação contra 16 distribuições da versão original, regras de vizinhança, contactos verticais, acumulação de pontos, partidas de 2–5 jogadores, conservação das cartas, gravação e limites de informação da máquina.
+O motor é independente da interface. `scoring.js` preserva a função de pontuação da v0.3; `session.js` gere campeonatos, equipas, RAID, atribuição A/B e gravações. Os 30 testes conferem a preparação contra 16 distribuições originais, vizinhança, pontuação clássica, conservação das cartas, todos os critérios de RAID, acumulação, metas, desempates, ordem cooperativa, rotação inicial, compatibilidade das gravações e informação oculta da máquina.
 
 ## Publicação
 

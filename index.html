@@ -10,11 +10,12 @@
 </head>
 <body>
  <header class="topbar">
-  <a class="wordmark" href="./" aria-label="INTERVAL início">INTERVAL<span>PLAYTEST / 0.4</span></a>
+  <a class="wordmark" href="./" aria-label="INTERVAL início">INTERVAL<span>PLAYTEST / 0.5</span></a>
   <div class="top-actions"><button id="scores-btn" class="quiet">Pontuação</button><button id="rules-btn" class="quiet">Como jogar <span>?</span></button><button id="new-btn" class="outline">Nova partida <span>↗</span></button></div>
  </header>
  <main id="table" aria-label="Mesa de jogo">
   <div class="table-meta"><span id="mode-label">A TUA PRÓXIMA SEQUÊNCIA</span><span id="round-label">90 CARTAS · 5 FAMÍLIAS</span></div>
+  <section id="session-bar" class="session-bar" aria-label="Equipas e classificação" hidden></section>
   <section class="boards-row" id="boards" aria-label="Grelhas públicas"></section>
   <section class="market-section" aria-label="Mercado central">
    <div class="section-label"><span>MERCADO <small>01 / ENTREGA · 02 / RETIRA</small></span><span id="deck-count"></span></div>
@@ -25,16 +26,19 @@
    <div class="hand-area"><div id="hand" class="hand" aria-label="Mão do jogador atual"></div><span id="hand-label" class="hand-label">A TUA MÃO</span></div>
   </section>
   <div id="live" class="sr-only" aria-live="polite" role="status"></div>
-  <footer class="table-footer"><span>REGRAS v0.3 <span class="dot">·</span> INTERFACE v0.4</span><button id="save-menu-btn" class="quiet">Guardar / carregar</button><span id="save-status">GUARDADO NESTE DISPOSITIVO</span></footer>
+  <footer class="table-footer"><span>CLÁSSICO v0.3 <span class="dot">·</span> MODOS / INTERFACE v0.5</span><button id="save-menu-btn" class="quiet">Guardar / carregar</button><span id="save-status">GUARDADO NESTE DISPOSITIVO</span></footer>
  </main>
  <dialog id="setup-dialog" class="setup-dialog">
   <div class="setup-art"><img src="assets/eye.svg" alt=""><img src="assets/x-code.svg" alt=""><img src="assets/star.svg" alt=""></div>
   <div class="dialog-inner"><div class="dialog-heading"><span class="eyebrow">O TEU PRÓXIMO INTERVALO</span><button class="icon-btn" data-close aria-label="Fechar">×</button></div><h2 class="display">INTERVAL</h2><p class="intro">Junta símbolos. Ordena números.<br>Faz cada espaço contar.</p>
   <form id="setup-form">
+   <label class="variant-field">MODO DE JOGO<select id="game-type"><option value="classic">Clássico</option><option value="race">Corrida aos Pontos</option><option value="coop">CO-OP 2vs2 · RAID 2</option></select></label>
+   <p id="game-description" class="game-description">Uma partida de 12 turnos por jogador. Regras clássicas v0.3.</p>
+   <label id="coop-race-option" class="coop-race-option" hidden><input type="checkbox" id="coop-race"> Campeonato de equipas · corrida aos 100 pontos</label>
    <fieldset class="mode-options"><legend>COMO QUERES JOGAR?</legend><label class="mode-option"><input type="radio" name="mode" value="ai" checked><strong>Contra a máquina <span>↗</span></strong><small>Tu decides. A máquina responde.</small></label><label class="mode-option"><input type="radio" name="mode" value="manual"><strong>Mesa de teste <span>↗</span></strong><small>Controlas todas as mãos.</small></label></fieldset>
    <div class="setup-fields"><label>JOGADORES<select id="player-count"><option value="2">2 jogadores</option><option value="3">3 jogadores</option><option value="4">4 jogadores</option><option value="5">5 jogadores</option></select></label><label>BARALHO <small>opcional</small><input id="seed-input" type="text" maxlength="10" pattern="[0-9]{1,10}" inputmode="numeric" placeholder="Aleatório"></label></div>
    <p id="setup-error" class="error" role="alert"></p><button type="submit" class="primary start-button">Vamos jogar <span>→</span></button>
-  </form><button id="resume-btn" class="resume" hidden>Continuar a partida guardada</button><p class="setup-note">2–5 jogadores · 8+ · 15–25 min<br>Versão principal: 90 cartas. Regras v0.3.</p></div>
+  </form><button id="resume-btn" class="resume" hidden>Continuar a sessão guardada</button><p class="setup-note">2–5 jogadores · 8+ · 15–25 min por partida<br>90 cartas · CO-OP: exatamente 4 jogadores.</p></div>
  </dialog>
  <dialog id="info-dialog"><div class="dialog-inner"><div class="dialog-heading"><span id="info-eyebrow" class="eyebrow">INTERVAL</span><button class="icon-btn" data-close aria-label="Fechar">×</button></div><div id="info-content"></div></div></dialog>
  <input id="import-file" type="file" accept=".json,application/json" hidden>

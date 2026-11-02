@@ -2,6 +2,8 @@
 
 **[Jogar no navegador](https://ideoteque.github.io/interval-playtest/)**
 
+**[Abrir INTERVAL Print Studio](https://ideoteque.github.io/interval-playtest/studio/)** — preparar cartas, mercado e bases em A4, com sangria, miras, calibração de frente/verso e exportação PDF/SVG. [Guia do Studio](studio/README.md).
+
 Interface **v0.5.1**, com o Clássico **v0.3** preservado, Corrida aos Pontos e CO-OP 2vs2 / RAID 2. Edição principal com 90 cartas únicas de 1 a 90. A variante 1–45 não faz parte desta aplicação.
 
 ## Controlo dos jogadores

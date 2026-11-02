@@ -1,0 +1,5 @@
+const CACHE='printstudio-v1.0.0-1';
+const FILES=['./','index.html','style.css','app.js','layout.js','art.js','export.js','vendor/pdf-lib.min.js','vendor/jszip.min.js','vendor/pdf.mjs','vendor/pdf.worker.mjs','../engine.js','../scoring.js','../assets/Doto-Black.ttf','../assets/eye.svg','../assets/record.svg','../assets/severance.svg','../assets/x-code.svg','../assets/star.svg','../assets/back.png','../assets/market.png','../assets/motherboard-a.png','../assets/motherboard-b.png'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('printstudio-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;e.respondWith(fetch(e.request).then(response=>{if(response.ok){const copy=response.clone();e.waitUntil(caches.open(CACHE).then(c=>c.put(e.request,copy)));}return response;}).catch(()=>caches.match(e.request)));});

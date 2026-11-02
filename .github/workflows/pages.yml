@@ -27,6 +27,7 @@ jobs:
           mkdir -p _site/assets _site/docs
           cp index.html styles.css app.js engine.js scoring.js session.js sw.js manifest.webmanifest _site/
           cp assets/* _site/assets/
+          cp -R studio _site/studio
           cp docs/regras.pdf docs/regras.docx docs/regras_v0.5.md docs/VALIDACAO_v0.5.md _site/docs/
       - uses: actions/upload-pages-artifact@v3
         with:

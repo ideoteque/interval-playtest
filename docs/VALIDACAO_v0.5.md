@@ -26,8 +26,8 @@ Estado de preparação em 02/11/2026.
 
 ## Verificação ainda pendente
 
-O acesso automatizado ao navegador esteve indisponível por uma falha de arranque do ambiente de controlo. Os testes funcionais de DOM não verificam renderização, toque, animações ou disposição real no Safari/Chrome. É necessária a revisão visual no navegador antes de considerar esta versão totalmente validada.
+O acesso automatizado ao navegador esteve indisponível por uma falha de arranque do ambiente de controlo. Os testes funcionais de DOM não verificam renderização, toque, animações ou disposição real no Safari/Chrome. O autor reviu a pré-visualização no navegador e aprovou a apresentação em 02/11/2026. A automação visual mantém a limitação indicada.
 
 Os novos modos são versões de playtest. A dificuldade da IA, a duração dos campeonatos e o equilíbrio das metas/bónus continuam por avaliar com pessoas.
 
-O livro PDF incluído continua a documentar o Clássico v0.3. As novas regras constam da ajuda da aplicação e do README.
+O livro foi atualizado em 02/11/2026 para a v0.5: 16 páginas de 90 × 120 mm, com Clássico, Corrida aos Pontos e CO-OP digital RAID 2. PDF e Word editável tiveram as páginas renderizadas e inspecionadas. O Word foi exportado através do Microsoft Word porque o renderizador padrão não encontrou LibreOffice neste ambiente. Os exemplos de 24 pontos individuais e 11 pontos RAID foram conferidos com o motor publicado. As regras de comunicação física por discos não fazem parte deste livro digital.

@@ -47,7 +47,7 @@ Distribuição numérica/símbolos mantida: olho 20, disco 20, forma orgânica 2
 
 ## Regras e pontuação
 
-[Livro ilustrado do Clássico v0.3 em português](docs/regras.pdf). Os novos modos estão explicados no botão **Como jogar** e neste documento; o PDF clássico não foi reescrito nesta atualização.
+[Livro ilustrado v0.5 em português](docs/regras.pdf), com Clássico, Corrida aos Pontos e CO-OP digital / RAID 2. São 16 páginas de 90 × 120 mm, com a arte original e exemplos de pontuação conferidos com o motor do jogo. [Versão Word editável](docs/regras.docx) e [texto de referência](docs/regras_v0.5.md). O CO-OP descrito corresponde ao digital sem discos; a comunicação física mantém questões de design em aberto.
 
 | Critério | Pontos |
 | --- | ---: |

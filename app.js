@@ -50,7 +50,7 @@ function renderMarket(){
  $('#market-cards').innerHTML=cards.map((c,i)=>{
   const isOffer=card?.v===c.v,highlight=legal.includes(c.v)&&taken===null,allowed=highlight&&canAct(),draggable=taken===c.v&&canAct();
   const left=([23.6,188.01,352.42,516.83,693.57,857.98,1022.39][i])/1360.63*100;
-  return `<button class="market-card ${isOffer?'offered':''} ${highlight?'legal':''} ${taken===c.v?'chosen':''} ${card&&!legal.includes(c.v)&&!isOffer?'dimmed':''}" data-market="${c.v}" style="left:${left}%;touch-action:${allowed||draggable?'none':'auto'}" ${allowed||draggable?'':'disabled'} aria-label="${cardLabel(c)}${isOffer?', carta entregue':allowed?', vizinha disponível':''}">${cardHTML(c)}</button>`;
+  return `<button class="market-card ${isOffer?'offered':''} ${highlight?'legal':''} ${taken===c.v?'chosen':''} ${card&&!legal.includes(c.v)&&!isOffer?'dimmed':''}" data-market="${c.v}" style="left:${left}%;touch-action:${allowed||draggable?'none':'auto'}" ${allowed||draggable?'':'disabled'} aria-label="${cardLabel(c)}${isOffer?', carta entregue, não pode ser retirada':allowed?', vizinha disponível':''}">${cardHTML(c)}</button>`;
  }).join('');
  $('#draw-pile').innerHTML=game.deck.length?`<div class="pile-position">${backHTML()}</div>`:'';
  $('#deck-count').textContent=`${game.deck.length} NO MONTE`;
@@ -69,7 +69,7 @@ function renderInstruction(){
  let title,hint;
  if(game.done){title='Cada espaço contou.';hint='A pontuação final já inclui todos os bónus de sequência.';}
  else if(offered===null){title=ai?'A máquina está a escolher…':'Entrega uma carta.';hint=ai?'As mãos e a ordem do monte ficam em segredo.':'Toca numa carta da mão para a inserir no mercado.';}
- else if(taken===null){title=ai?'A máquina procura o intervalo…':'Escolhe uma vizinha.';hint=`Entregaste o ${game.players[p].hand[offered].v}. Retira uma das cartas assinaladas a amarelo.`;}
+ else if(taken===null){title=ai?'A máquina procura o intervalo…':'Escolhe uma vizinha.';hint=`Entregaste o ${game.players[p].hand[offered].v}. A carta esbatida é a que entregaste e não pode ser retirada. Escolhe uma das vizinhas a amarelo.`;}
  else{title=ai?'A máquina encontrou um lugar.':`Onde fica o ${taken}?`;hint=ai?'A carta vai ocupar uma casa livre.':'Toca numa casa livre da tua grelha. Ou arrasta a carta até lá.';}
  $('#turn-kicker').textContent=game.done?'FIM DA PARTIDA':`${name(p).toUpperCase()} · TURNO ${round(game)} DE 12`;
  $('#instruction').textContent=title;$('#hint').textContent=hint;

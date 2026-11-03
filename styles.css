@@ -30,3 +30,10 @@ main .primary:hover{background:#604b94}
 .hand-card.selected .card{box-shadow:0 0 0 3px var(--purple),0 15px 25px #0006}
 dialog{color-scheme:dark;--ink:#f0eadd;--muted:#ada4bb;--mint:#acd1c6;--line:#ffffff1b}
 .toast{background:#493674;color:#fff}
+
+/* Ambient controls stay separate from game state and fit the narrow header. */
+.top-actions .sound-button span{border:0;display:inline;width:auto;height:auto;margin:0;font:inherit}
+.sound-button{white-space:nowrap}.sound-on{color:var(--purple);background:#604b9418;border-radius:6px}
+.sound-dialog{width:min(420px,calc(100vw - 28px))}.sound-dialog h2{font-size:25px;font-weight:400;margin:20px 0 12px}.sound-dialog p{font-size:13px;line-height:1.6;color:var(--muted)}
+.sound-dialog .primary{width:100%;margin:12px 0 24px}.sound-volume{display:flex;justify-content:space-between;font-size:12px}.sound-dialog input[type=range]{width:100%;accent-color:#acd1c6;min-height:44px;cursor:pointer}.sound-dialog .sound-note{font-size:10px;margin:20px 0 0}.sound-setup{margin-top:12px}
+@media(max-width:650px){.top-actions .sound-button .sound-label{display:none}.top-actions .sound-button{font-size:17px;padding:7px;min-width:32px}.topbar{flex-wrap:wrap}.top-actions{margin-left:auto}}

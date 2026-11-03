@@ -88,3 +88,8 @@ GitHub Pages: em **Settings → Pages → Source**, selecionar **GitHub Actions*
 Referência de apresentação e movimento: [Eternal Sevens / deckades](https://deckades.net/Sevens/). O código e os recursos dessa referência não foram copiados.
 
 A correção v0.5.1 usa a ordem CO-OP 1A → 2B → 1B → 2A em novas sessões. Gravações anteriores conservam a ordem original para recuperar exatamente as cartas e decisões; a interface identifica essas sessões como «ORDEM ANTERIOR». Inicia uma nova sessão para testar a ordem corrigida.
+
+
+### Música ambiente
+
+Composição generativa original, sintetizada localmente em `ambient.js`, sem gravações, samples ou serviços externos. Camadas de quatro notas mudam lentamente; notas superiores com pausas e pequenas variações de duração, panorama e afinação. Sem percussão nem ciclo de reprodução fixo. O volume começa a 35%, com entrada/saída suaves; a preferência de volume fica neste dispositivo. A música começa sempre desligada e exige um toque no controlo Música (também disponível no ecrã inicial). Pausa ao ocultar o separador; ao regressar, usar Retomar música. Os controlos e o áudio são independentes da partida e do respetivo baralho. Incluído na cache offline do jogo. Testar a experiência sonora no equipamento final, sobretudo Safari/iPad e altifalantes pequenos.

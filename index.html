@@ -11,7 +11,7 @@
 <body>
  <header class="topbar">
   <a class="wordmark" href="./" aria-label="INTERVAL início">INTERVAL<span>PLAYTEST / 0.5</span></a>
-  <div class="top-actions"><button id="scores-btn" class="quiet">Pontuação</button><button id="rules-btn" class="quiet">Como jogar <span>?</span></button><button id="new-btn" class="outline">Nova partida <span>↗</span></button></div>
+  <div class="top-actions"><button class="quiet sound-button" data-sound aria-haspopup="dialog" aria-controls="sound-dialog" aria-label="Música ambiente · abrir controlos">♫<span class="sound-label"> Música</span></button><button id="scores-btn" class="quiet">Pontuação</button><button id="rules-btn" class="quiet">Como jogar <span>?</span></button><button id="new-btn" class="outline">Nova partida <span>↗</span></button></div>
  </header>
  <main id="table" aria-label="Mesa de jogo">
   <div class="table-meta"><span id="mode-label">A TUA PRÓXIMA SEQUÊNCIA</span><span id="round-label">90 CARTAS · 5 FAMÍLIAS</span></div>
@@ -38,10 +38,12 @@
    <fieldset class="mode-options"><legend>COMO QUERES JOGAR?</legend><label class="mode-option"><input type="radio" name="mode" value="ai" checked><strong>Contra a máquina <span>↗</span></strong><small>Tu decides. A máquina responde.</small></label><label class="mode-option"><input type="radio" name="mode" value="manual"><strong>Mesa de teste <span>↗</span></strong><small>Controlas todas as mãos.</small></label></fieldset>
    <div class="setup-fields"><label>JOGADORES<select id="player-count"><option value="2">2 jogadores</option><option value="3">3 jogadores</option><option value="4">4 jogadores</option><option value="5">5 jogadores</option></select></label><label>BARALHO <small>opcional</small><input id="seed-input" type="text" maxlength="10" pattern="[0-9]{1,10}" inputmode="numeric" placeholder="Aleatório"></label></div>
    <p id="setup-error" class="error" role="alert"></p><button type="submit" class="primary start-button">Vamos jogar <span>→</span></button>
-  </form><button id="resume-btn" class="resume" hidden>Continuar a sessão guardada</button><p class="setup-note">2–5 jogadores · 8+ · 15–25 min por partida<br>90 cartas · CO-OP: exatamente 4 jogadores.</p></div>
+  </form><button id="resume-btn" class="resume" hidden>Continuar a sessão guardada</button><button type="button" class="resume sound-setup" data-sound aria-haspopup="dialog" aria-controls="sound-dialog">♫ Música ambiente</button><p class="setup-note">2–5 jogadores · 8+ · 15–25 min por partida<br>90 cartas · CO-OP: exatamente 4 jogadores.</p></div>
  </dialog>
  <dialog id="info-dialog"><div class="dialog-inner"><div class="dialog-heading"><span id="info-eyebrow" class="eyebrow">INTERVAL</span><button class="icon-btn" data-close aria-label="Fechar">×</button></div><div id="info-content"></div></div></dialog>
+ <dialog id="sound-dialog" class="sound-dialog" aria-labelledby="sound-title"><div class="dialog-inner"><div class="dialog-heading"><span class="eyebrow">O SOM DO INTERVAL</span><button id="sound-close" class="icon-btn" aria-label="Fechar controlos de música">×</button></div><h2 id="sound-title">Música ambiente</h2><p>Notas suspensas, camadas suaves e espaço para pensar.</p><p id="sound-status" role="status"></p><button id="sound-toggle" class="primary">Ativar música</button><label class="sound-volume" for="sound-volume">Volume <output id="sound-level" for="sound-volume">35%</output></label><input id="sound-volume" type="range" min="0" max="100" value="35" step="1"><p class="sound-note">Composição generativa original do INTERVAL. Sem loop fixo.<br>Ao sair deste separador, a música pausa.</p></div></dialog>
  <input id="import-file" type="file" accept=".json,application/json" hidden>
  <noscript>Ativa o JavaScript para jogar INTERVAL.</noscript>
  <script type="module" src="app.js"></script>
+ <script type="module" src="audio-ui.js"></script>
 </body></html>

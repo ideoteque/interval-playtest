@@ -70,7 +70,7 @@ export async function preset(){
  const inner=sources.map(s=>new DOMParser().parseFromString(sanitizeSVG(s),'image/svg+xml').documentElement.innerHTML);
  for(let v=1;v<=90;v++){
   const k=FAMILIES[v-1],id=`interval-card-${v}`;
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="161.007874" height="161.007874" viewBox="-8.503937 -8.503937 161.007874 161.007874"><style>@font-face{font-family:Doto;src:url('${font}') format('truetype');font-weight:900}</style>${inner[k]}<g font-family="Doto" font-weight="900" font-size="34.274" fill="${fg[k]}"><text x="4.88" y="33.44">${v}</text><text transform="translate(140.04 108.31) rotate(180)">${v}</text></g></svg>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="161.007874" height="161.007874" viewBox="-8.503937 -8.503937 161.007874 161.007874"><style>@font-face{font-family:Doto;src:url('${font}') format('truetype');font-weight:900}</style>${inner[k]}<g font-family="Doto" font-weight="900" font-size="34.274" fill="${fg[k]}"><text x="11.34" y="35.16">${v}</text><text transform="translate(132.66 108.84) rotate(180)">${v}</text></g></svg>`;
   files[id]={name:`INTERVAL ${String(v).padStart(2,'0')}`,mime:'image/svg+xml',data:svgData(svg)};
   groups.fronts.assets.push({id,fileId:id,page:1,name:String(v),quantity:1});
  }

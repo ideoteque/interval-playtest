@@ -17,7 +17,7 @@ function sync(s){session=s;game=s.game;mode=s.options.mode;history=s.rounds.at(-
 const isAI=()=>!!game&&mode==='ai'&&current(game)!==0&&!game.done;
 const canAct=()=>!!game&&!game.done&&!busy&&!isAI();
 const pointWord=n=>n===1?'ponto':'pontos';
-const cardHTML=c=>`<span class="card" data-card="${c.v}" data-k="${c.k}"><img src="assets/${ASSETS[c.k]}.svg" alt="" draggable="false"><svg viewBox="0 0 144 144" aria-hidden="true"><text x="4.88" y="33.44">${c.v}</text><text transform="translate(140.04 108.31) rotate(180)">${c.v}</text></svg></span>`;
+const cardHTML=c=>`<span class="card" data-card="${c.v}" data-k="${c.k}"><img src="assets/${ASSETS[c.k]}.svg" alt="" draggable="false"><svg viewBox="0 0 144 144" aria-hidden="true"><text x="11.34" y="35.16">${c.v}</text><text transform="translate(132.66 108.84) rotate(180)">${c.v}</text></svg></span>`;
 const backHTML=()=>'<span class="card"><img src="assets/back.png" alt="Verso de carta" draggable="false"></span>';
 const cardLabel=c=>`${c.v}, ${NAMES[c.k]}`;
 function announce(t){$('#live').textContent=t;}
